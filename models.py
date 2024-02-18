@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy import Column, String, Integer, Float, Date, DateTime
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
-from datetime import date
+from datetime import date, datetime
 
 BaseModel = declarative_base()
 type_dict = {
@@ -74,7 +74,7 @@ class Bill(BaseModel):
     payment_type = Column("payment_type", String(64))
     bill_date = Column("bill_date", DateTime)
 
-    def __init__(self, customer_name, bill_json, total_amount, discount, net_amount, payment_type, bill_date):
+    def __init__(self, customer_name: str, bill_json: str, total_amount: float, discount: float, net_amount: float, payment_type: str, bill_date: datetime):
         self.customer_name = customer_name
         self.bill_json = bill_json
         self.total_amount = total_amount
@@ -99,7 +99,7 @@ class ServiceBill(BaseModel):
     payment_type = Column("payment_type", String(64))
     bill_date = Column("bill_date", DateTime)
 
-    def __init__(self, patient_name, bill_json, total_amount, discount, net_amount, payment_type, bill_date):
+    def __init__(self, patient_name: str, bill_json: str, total_amount: float, discount: float, net_amount: float, payment_type: str, bill_date: datetime):
         self.patient_name = patient_name
         self.bill_json = bill_json
         self.total_amount = total_amount

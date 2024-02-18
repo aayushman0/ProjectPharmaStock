@@ -32,8 +32,8 @@ class BillTab:
         self.add_bill_frame.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
         # -------------------------------------------------------------------------------
-        self.float_validation = self.add_bill_frame.register(lambda x: x.replace(".", "", 1).isdigit() or (not x))
-        self.int_validation = self.add_bill_frame.register(lambda x: x.isdigit() or (not x))
+        self.float_validation = self.main_frame.register(lambda x: x.replace(".", "", 1).isdigit() or (not x))
+        self.int_validation = self.main_frame.register(lambda x: x.isdigit() or (not x))
         # -------------------------------------------------------------------------------
 
         self.customer_name_label = ttk.Label(self.add_bill_frame, text="Customer's Name: ")
@@ -97,7 +97,7 @@ class BillTab:
         self.discount_label_2.grid(row=11, column=0, padx=self.PADX, pady=self.PADY, sticky="e")
         self.discount_entry_2 = ttk.Spinbox(
             self.add_bill_frame, from_=0, to=999999, format="%.2f", textvariable=self.discount,
-            validate="key", validatecommand=(self.float_validation, "%P")
+            validate="key", validatecommand=(self.float_validation, "%S")
         )
         self.discount_entry_2.grid(row=11, column=1, padx=self.PADX, pady=self.PADY, sticky="ew")
 
@@ -138,11 +138,11 @@ class BillTab:
 
         self.net_total_label = ttk.Label(self.bill_footer, text="Net Total: Rs.", font=("Aerial", 10, "bold"))
         self.net_total_label.grid(row=2, column=0, sticky="e")
-        self.net_total_entry = ttk.Label(self.bill_footer, textvariable=self.net_total)
+        self.net_total_entry = ttk.Label(self.bill_footer, width=25, textvariable=self.net_total)
         self.net_total_entry.grid(row=2, column=1, sticky="w")
 
         self.create_bill_button = ttk.Button(self.bill_footer, text="Save Bill", width=50, command=self.save_bill_to_db)
-        self.create_bill_button.grid(row=1, column=2, rowspan=2, sticky="e")
+        self.create_bill_button.grid(row=1, column=3, rowspan=2, sticky="e")
 
     def add_item_to_bill(self):
         name = self.name.get()

@@ -73,6 +73,37 @@ def get_paginated_batches(page: int, code: str | None = None) -> tuple[list[tupl
     return response, count
 
 
+def get_bill(id: int) -> Bill | None:
+    bill = session.query(Bill).filter(Bill.id == id).scalar()
+    return bill
+
+
+def get_bill_json_by_id(id: int) -> list[tuple[int, str, str, str, str, int, float, float]]:
+    bill: Bill | None = session.query(Bill).filter(Bill.id == id).scalar()
+    if not bill:
+        return None
+    bill_json = json.loads(bill.bill_json)
+    response = [
+        (row.get("sn", 0), row.get("particular"), row.get("batch_no"),
+         str(row.get("mfg_date")), str(row.get("exp_date")),
+         row.get("quantity", 0), row.get("price", 0), row.get("total", 0))
+        for row in bill_json
+    ]
+    return response
+
+
+def get_paginated_bills(page: int) -> tuple[list[tuple[int, str, float, str]], int]:
+    bills = session.query(Bill).order_by(Bill.bill_date.desc())
+
+    count = bills.count()
+    paginated_bills = bills.slice((page-1) * no_of_rows, page * no_of_rows)
+    response = [
+        (bill.id, bill.customer_name, bill.net_amount, str(bill.bill_date)[:16])
+        for bill in paginated_bills
+    ]
+    return response, count
+
+
 def add_item(name: str, type: str, price: float, best_before: int) -> Item:
     code = f"{type_dict.get(type.lower(), 'oth')}{re.sub('[^A-Za-z0-9]+', '', name).lower()}"
 
@@ -120,27 +151,27 @@ def add_bill(customer_name: str, bill_json: list[dict], total_amount: float, dis
     return bill
 
 
-def get_bill_json_by_id(id: int) -> list[tuple[int, str, str, str, str, int, float, float]]:
-    bill: Bill | None = session.query(Bill).filter(Bill.id == id).scalar()
-    if not bill:
+def edit_item(code: str, name: str, type: str, price: float, best_before: int) -> Item | None:
+    item: Item | None = session.query(Item).filter(Item.code == code).scalar()
+    if not item:
         return None
-    bill_json = json.loads(bill.bill_json)
-    response = [
-        (row.get("sn", 0), row.get("particular"), row.get("batch_no"),
-         str(row.get("mfg_date")), str(row.get("exp_date")),
-         row.get("quantity", 0), row.get("price", 0), row.get("total", 0))
-        for row in bill_json
-    ]
-    return response
+    item.name = name
+    item.type = type
+    item.code = code = f"{type_dict.get(type.lower(), 'oth')}{re.sub('[^A-Za-z0-9]+', '', name).lower()}"
+    item.price = price
+    item.best_before = best_before
+    session.commit()
+    return item
 
 
-def get_paginated_bills(page: int) -> tuple[list[tuple[int, str, float, str]], int]:
-    bills = session.query(Bill).order_by(Bill.bill_date.desc())
-
-    count = bills.count()
-    paginated_bills = bills.slice((page-1) * no_of_rows, page * no_of_rows)
-    response = [
-        (bill.id, bill.customer_name, bill.net_amount, str(bill.bill_date)[:16])
-        for bill in paginated_bills
-    ]
-    return response, count
+def edit_batch(code: str, batch_no: str, price: float, quantity: int, mfg_date: date, exp_date: date, distributor: str) -> Batch | None:
+    batch = session.query(Batch).join(Item).filter(Item.code == code, Batch.batch_no == batch_no).first()
+    if not batch:
+        return None
+    batch.price = price
+    batch.quantity = quantity
+    batch.mfg_date = mfg_date
+    batch.exp_date = exp_date
+    batch.distributor = distributor
+    session.commit()
+    return batch

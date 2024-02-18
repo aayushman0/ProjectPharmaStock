@@ -34,8 +34,8 @@ class StockTab:
         self.add_stock_frame.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
         # -------------------------------------------------------------------------------
-        self.float_validation = self.add_stock_frame.register(lambda x: x.replace(".", "", 1).isdigit() or (not x))
-        self.int_validation = self.add_stock_frame.register(lambda x: x.isdigit() or (not x))
+        self.float_validation = self.main_frame.register(lambda x: x.replace(".", "", 1).isdigit() or (not x))
+        self.int_validation = self.main_frame.register(lambda x: x.isdigit() or (not x))
         # -------------------------------------------------------------------------------
         self.name_label = ttk.Label(self.add_stock_frame, text="Name: ")
         self.name_label.grid(row=0, column=0, padx=self.PADX, pady=(15, 5), sticky="e")

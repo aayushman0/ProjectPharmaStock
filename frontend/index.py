@@ -7,6 +7,8 @@ from frontend.item_tab import ItemTab
 from frontend.stock_tab import StockTab
 from frontend.bill_tab import BillTab
 from frontend.bill_history_tab import BillHistory
+from frontend.edit_tab import EditTab
+
 
 root = tk.Tk()
 root.title("Pharma App")
@@ -46,7 +48,8 @@ tabs: tuple[tuple[ItemTab, str], tuple[StockTab, str], tuple[StockTab, str]] = [
     (ItemTab(body_frame), "Item"),
     (StockTab(body_frame), "Stock"),
     (BillTab(body_frame), "Create Bill"),
-    (BillHistory(body_frame), "Bill History")
+    (BillHistory(body_frame), "Bill History"),
+    (EditTab(body_frame), "Edit Stock")
 ]
 for tab in tabs:
     body_frame.add(tab[0].main_frame, text=tab[1])
