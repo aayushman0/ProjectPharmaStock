@@ -78,7 +78,7 @@ class BillHistory:
         for i, item in enumerate(json.loads(bill.bill_json)):
             sn = f"{i:02d}  "
 
-            particular = item.get("item_name", "")
+            particular = item.get("particular", "Oth. ---")[5:]
             particular_length = len(particular)
             if particular_length < 10:
                 particular = f"{particular}\t\t"
@@ -96,8 +96,8 @@ class BillHistory:
             else:
                 batch_no = batch_no[:11] + "\t"
 
-            exp = item.get("exp_date", "MM/YYYY")
-            exp = f"{exp[:3]}{exp[5:7]}\t"
+            exp = item.get("exp_date", "YYYY-MM")
+            exp = f"{exp[5:7]}/{exp[2:4]}\t"
             qty = item.get("quantity", 0)
             qty = f"{qty}".ljust(5)
             price = item.get("price", 0)
