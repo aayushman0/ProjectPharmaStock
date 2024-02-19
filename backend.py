@@ -168,6 +168,10 @@ def edit_batch(code: str, batch_no: str, price: float, quantity: int, mfg_date: 
     batch = session.query(Batch).join(Item).filter(Item.code == code, Batch.batch_no == batch_no).first()
     if not batch:
         return None
+    if batch.quantity <= quantity:
+        session.delete(batch)
+        session.commit()
+        return None
     batch.price = price
     batch.quantity = quantity
     batch.mfg_date = mfg_date

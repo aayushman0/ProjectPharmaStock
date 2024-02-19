@@ -37,7 +37,7 @@ class EditTab:
         # -------------------------------------------------------------------------------
 
         self.add_item_frame = ttk.LabelFrame(self.main_frame, text="Edit Item")
-        self.add_item_frame.grid(row=0, column=0, padx=20, pady=10)
+        self.add_item_frame.grid(row=0, column=1, padx=20, pady=10)
 
         self.item_name_label = ttk.Label(self.add_item_frame, text="Name: ")
         self.item_name_label.grid(row=0, column=0, padx=self.PADX, pady=(15, 5), sticky="e")
@@ -82,7 +82,7 @@ class EditTab:
         # -------------------------------------------------------------------------------
 
         self.add_stock_frame = ttk.LabelFrame(self.main_frame, text="Edit Stock")
-        self.add_stock_frame.grid(row=0, column=1, padx=20, pady=10)
+        self.add_stock_frame.grid(row=0, column=0, padx=20, pady=10)
 
         self.name_label = ttk.Label(self.add_stock_frame, text="Name: ")
         self.name_label.grid(row=0, column=0, padx=self.PADX, pady=(15, 5), sticky="e")
