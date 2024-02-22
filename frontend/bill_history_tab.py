@@ -1,7 +1,9 @@
 import os
 import json
+from datetime import date, timedelta
+import tkinter as tk
 from tkinter import ttk
-from backend import no_of_rows, get_paginated_bills, get_bill_json_by_id, get_bill
+from backend import get_bills_by_date, get_bill_json_by_id, get_bill
 from docx import Document
 
 
@@ -10,6 +12,8 @@ class BillHistory:
         self.main_frame = ttk.Frame(frame)
         self.PADX = 10
         self.PADY = 5
+        self.current_date = date.today()
+        self.days_total = tk.DoubleVar()
         self.cols = ["SN", "Particular", "Batch No", "Mfg Date", "Exp Date", "Quantity", "Price", "Total"]
         self.create_tab()
         self.refresh_tab()
@@ -23,15 +27,35 @@ class BillHistory:
             self.bill_list_frame,
             show="headings",
             columns=["SN", "Customers Name", "Net Total", "Bill Date"],
-            height=no_of_rows,
+            height=20,
         )
         for col_name in ["SN", "Customers Name", "Net Total", "Bill Date"]:
             self.bill_list_table.heading(col_name, text=col_name)
         self.bill_list_table.column("SN", width=50, anchor="e")
         self.bill_list_table.column("Customers Name", width=150)
         self.bill_list_table.column("Net Total", width=80, anchor="e")
-        self.bill_list_table.column("Bill Date", width=120)
+        self.bill_list_table.column("Bill Date", width=125)
         self.bill_list_table.grid(row=0, column=0, sticky="nsew")
+
+        self.page_frame = ttk.Frame(self.bill_list_frame)
+        self.page_frame.grid(row=1, column=0, sticky="e")
+
+        self.prev_page_button = ttk.Button(self.page_frame, text="<<", command=lambda: self.date_changed(-1))
+        self.prev_page_button.grid(row=0, column=0)
+
+        self.date_label = ttk.Label(self.page_frame, text=self.current_date, width=10)
+        self.date_label.grid(row=0, column=1)
+
+        self.next_page_button = ttk.Button(self.page_frame, text=">>", command=lambda: self.date_changed(1))
+        self.next_page_button.grid(row=0, column=2)
+
+        ttk.Label(self.page_frame, width=5).grid(row=0, column=3)
+
+        self.days_total_label = ttk.Label(self.page_frame, text="Total: ", font=("Aerial", 12, "bold"))
+        self.days_total_label.grid(row=0, column=4)
+
+        self.days_total_entry = ttk.Label(self.page_frame, textvariable=self.days_total, font=("Aerial", 11), width=10, anchor="e")
+        self.days_total_entry.grid(row=0, column=5)
 
         # -------------------------------------------------------------------------------
         self.table_frame = ttk.Frame(self.main_frame)
@@ -135,9 +159,15 @@ class BillHistory:
     def refresh_tab(self):
         self.bill_list_table.delete(*self.bill_list_table.get_children())
         self.bill_table.delete(*self.bill_table.get_children())
-        bills, bill_count = get_paginated_bills(page=1)
+        bills = get_bills_by_date(date=self.current_date)
+        if not bills:
+            self.days_total.set(0.0)
+            return None
+        total = 0
         for bill in bills:
             self.bill_list_table.insert('', "end", values=bill)
+            total += bill[2]
+        self.days_total.set(total)
         self.bill_list_table.selection_set(self.bill_list_table.get_children()[0])
 
     def events(self):
@@ -154,3 +184,8 @@ class BillHistory:
             return None
         for row in bill_json:
             self.bill_table.insert("", "end", values=row)
+
+    def date_changed(self, day_increase: int):
+        self.current_date = self.current_date + timedelta(days=day_increase)
+        self.date_label["text"] = self.current_date
+        self.refresh_tab()

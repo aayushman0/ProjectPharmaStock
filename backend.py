@@ -1,6 +1,7 @@
 import re
 import json
 from datetime import date, datetime
+from sqlalchemy import func
 from models import session
 from models import Item, Batch, Bill
 
@@ -92,16 +93,13 @@ def get_bill_json_by_id(id: int) -> list[tuple[int, str, str, str, str, int, flo
     return response
 
 
-def get_paginated_bills(page: int) -> tuple[list[tuple[int, str, float, str]], int]:
-    bills = session.query(Bill).order_by(Bill.bill_date.desc())
-
-    count = bills.count()
-    paginated_bills = bills.slice((page-1) * no_of_rows, page * no_of_rows)
+def get_bills_by_date(date: date) -> list[tuple[int, str, float, str]]:
+    bills = session.query(Bill).filter(func.DATE(Bill.bill_date) == date).order_by(Bill.bill_date.desc())
     response = [
         (bill.id, bill.customer_name, bill.net_amount, str(bill.bill_date)[:16])
-        for bill in paginated_bills
+        for bill in bills
     ]
-    return response, count
+    return response
 
 
 def add_item(name: str, type: str, price: float, best_before: int) -> Item:
@@ -168,7 +166,7 @@ def edit_batch(code: str, batch_no: str, price: float, quantity: int, mfg_date: 
     batch = session.query(Batch).join(Item).filter(Item.code == code, Batch.batch_no == batch_no).first()
     if not batch:
         return None
-    if batch.quantity <= quantity:
+    if quantity == 0:
         session.delete(batch)
         session.commit()
         return None

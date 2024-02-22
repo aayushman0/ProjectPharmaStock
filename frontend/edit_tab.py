@@ -185,6 +185,7 @@ class EditTab:
 
         self.name.set("")
         self.batch_no_entry["values"] = []
+        self.batch_no_entry.set("")
         self.price.set(0)
         self.quantity.set(0)
         today = datetime.now()
