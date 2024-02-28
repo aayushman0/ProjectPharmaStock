@@ -3,7 +3,7 @@ import json
 from datetime import date, datetime
 from sqlalchemy import func
 from models import session
-from models import Item, Batch, Bill
+from models import Item, Batch, Bill, ServiceBill
 
 
 type_dict = {
@@ -102,6 +102,32 @@ def get_bills_by_date(date: date) -> list[tuple[int, str, float, str]]:
     return response
 
 
+def get_service_bill(id: int) -> ServiceBill | None:
+    service_bill = session.query(ServiceBill).filter(ServiceBill.id == id).scalar()
+    return service_bill
+
+
+def get_service_bills_by_date(date: date) -> list[tuple[int, str, float, str]]:
+    service_bills = session.query(ServiceBill).filter(func.DATE(ServiceBill.bill_date) == date).order_by(ServiceBill.bill_date.desc())
+    response = [
+        (bill.id, bill.patient_name, bill.net_amount, str(bill.bill_date)[:16])
+        for bill in service_bills
+    ]
+    return response
+
+
+def get_service_bill_json_by_id(id: int) -> list[tuple[int, str, float]]:
+    service_bill: ServiceBill | None = session.query(ServiceBill).filter(ServiceBill.id == id).scalar()
+    if not service_bill:
+        return None
+    bill_json = json.loads(service_bill.bill_json)
+    response = [
+        (row.get("sn", 0), row.get("procedure"), row.get("amount", 0))
+        for row in bill_json
+    ]
+    return response
+
+
 def add_item(name: str, type: str, price: float, best_before: int) -> Item:
     code = f"{type_dict.get(type.lower(), 'oth')}{re.sub('[^A-Za-z0-9]+', '', name).lower()}"
 
@@ -147,6 +173,13 @@ def add_bill(customer_name: str, bill_json: list[dict], total_amount: float, dis
             batch.quantity -= quantity
     session.commit()
     return bill
+
+
+def add_service_bill(patient_name: str, bill_json: list[dict], total_amount: float, discount: float, net_amount: float, payment_type: str) -> ServiceBill:
+    service_bill = ServiceBill(patient_name, json.dumps(bill_json), total_amount, discount, net_amount, payment_type, datetime.now())
+    session.add(service_bill)
+    session.commit()
+    return service_bill
 
 
 def edit_item(code: str, name: str, type: str, price: float, best_before: int) -> Item | None:
