@@ -94,7 +94,7 @@ class ServiceBillHistory:
         total = f"{bill.total_amount:8.2f}"
         discount = f"{bill.discount:8.2f}"
         net_total = f"{bill.net_amount:8.2f}"
-        payment_type = f"[{bill.payment_type}]".rjust(11)
+        payment_type = f" {bill.payment_type} ".rjust(11)
 
         for item in json.loads(bill.bill_json):
             sn = f"{item.get("sn", 0):02d}  "
@@ -105,12 +105,14 @@ class ServiceBillHistory:
                 procedure = f"{procedure}\t\t\t"
             elif procedure_length < 16:
                 procedure = f"{procedure}\t\t"
-            elif procedure_length < 22:
+            elif procedure_length < 24:
                 procedure = f"{procedure}\t"
+            elif procedure_length < 30:
+                procedure = f"{procedure}"
             else:
-                procedure = f"{procedure[:21]}\t"
+                procedure = f"{procedure[:29]}"
 
-            amount = item.get("total", 0)
+            amount = item.get("amount", 0)
             amount = f"{amount:.2f}".rjust(9)
 
             items += f"{sn}{procedure}\t\t\t\t{amount}\n"
@@ -120,10 +122,10 @@ class ServiceBillHistory:
             "DD/MM/YYYY": date_string,
             "[Customer Name]": customer_name,
             "[Bill]": "\n" + items,
-            "[TTTTT.00]": total,
-            "[DDDDD.00]": discount,
-            "[NNNNN.00]": net_total,
-            "[PPPPPPPPPPP]": payment_type,
+            "TTTTT.00": total,
+            "DDDDD.00": discount,
+            "NNNNN.00": net_total,
+            "PPPPPPPPPPP": payment_type,
         }
 
         def replace_string(paragraph, old_string, new_string):
