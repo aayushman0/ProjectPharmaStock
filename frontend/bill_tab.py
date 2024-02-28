@@ -231,6 +231,7 @@ class BillTab:
         entry = re.sub('[^A-Za-z0-9]+', '', entry).lower()
         self.possible_names_list.delete(0, "end")
         if len(entry) <= 3:
+            self.possible_names_list.place_forget()
             return None
         self.possible_names_list.place(in_=self.name_entry, x=0, rely=1, relwidth=1.0)
         possible_items = get_filtered_items(code=entry)

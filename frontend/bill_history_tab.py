@@ -99,8 +99,8 @@ class BillHistory:
         net_total = f"{bill.net_amount:8.2f}"
         payment_type = f"[{bill.payment_type}]".rjust(11)
 
-        for i, item in enumerate(json.loads(bill.bill_json)):
-            sn = f"{i:02d}  "
+        for item in json.loads(bill.bill_json):
+            sn = f"{item.get("sn", 0):02d}  "
 
             particular = item.get("particular", "Oth. ---")[5:]
             particular_length = len(particular)
