@@ -3,7 +3,7 @@ from datetime import datetime, date
 import tkinter as tk
 from tkinter import ttk
 from backend import type_dict, get_filtered_items, get_item_by_code, get_batch_nos_from_item_id
-from backend import get_batch, edit_item, edit_batch
+from backend import get_batch, edit_item, edit_batch, delete_expired_batches, get_sum_total_of_all
 
 
 class EditTab:
@@ -30,6 +30,7 @@ class EditTab:
         self.mfg_year = tk.IntVar()
         self.exp_month = tk.IntVar()
         self.exp_year = tk.IntVar()
+        self.sum_total = tk.DoubleVar()
 
     def create_tab(self):
         self.float_validation = self.main_frame.register(lambda x: x.replace(".", "", 1).isdigit() or (not x))
@@ -150,6 +151,21 @@ class EditTab:
 
         self.possible_names_list = tk.Listbox(self.add_stock_frame, font=("Aerial", 10))
 
+        # -------------------------------------------------------------------------------
+
+        self.misc_frame = ttk.LabelFrame(self.main_frame, text="Misc.")
+        self.misc_frame.grid(row=0, column=2, padx=20, pady=10)
+
+        self.sum_total_label = ttk.Label(self.misc_frame, text="All Stocks Total: ")
+        self.sum_total_label.grid(row=0, column=0, padx=self.PADX, pady=(15, 5), sticky="e")
+        self.sum_total_field = ttk.Label(self.misc_frame, textvariable=self.sum_total)
+        self.sum_total_field.grid(row=0, column=1, padx=self.PADX, pady=(15, 5), sticky="e")
+
+        self.delete_exp_label = ttk.Label(self.misc_frame, text="Delete Expired Stocks: ")
+        self.delete_exp_label.grid(row=1, column=0, padx=self.PADX, pady=(15, 5), sticky="e")
+        self.delete_exp_button = ttk.Button(self.misc_frame, text="DELETE", command=self.delete_exp_stocks)
+        self.delete_exp_button.grid(row=1, column=1, padx=self.PADX, pady=(15, 5), sticky="ew")
+
     def edit_item_in_db(self):
         old_name = self.item_name.get()
         type = self.item_type_entry.get()
@@ -194,6 +210,7 @@ class EditTab:
         self.exp_month.set(today.month)
         self.exp_year.set(today.year)
         self.distributor_entry.delete(0, "end")
+        self.sum_total.set(get_sum_total_of_all())
 
     def events(self):
         self.item_name_entry.bind("<FocusIn>", self.item_show_possible_name_list)
@@ -346,3 +363,8 @@ class EditTab:
             return None
         self.exp_month.set(((mfg_month + best_before) % 12) or 12)
         self.exp_year.set((mfg_year + (mfg_month + best_before - 1) // 12))
+
+    def delete_exp_stocks(self, *args):
+        today = datetime.now()
+        exp_date = date(today.year, today.month, 1)
+        delete_expired_batches(exp_date)

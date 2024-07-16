@@ -50,7 +50,7 @@ tabs: tuple[tuple[ItemTab, str], tuple[StockTab, str], tuple[StockTab, str]] = [
     (StockTab(body_frame), "Stock"),
     (BillTab(body_frame), "Create Bill"),
     (BillHistory(body_frame), "Bill History"),
-    (EditTab(body_frame), "Edit Stock"),
+    (EditTab(body_frame), "Edit/Delete/Misc."),
     (ServiceBilTab(body_frame), "Service Bill"),
     (ServiceBillHistory(body_frame), "Service Bill History"),
 ]

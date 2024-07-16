@@ -20,6 +20,7 @@ class BillTab:
 
     def init_vars(self):
         self.name = tk.StringVar()
+        self.batch_no = tk.StringVar()
         self.price = tk.DoubleVar()
         self.quantity = tk.IntVar()
         self.total = tk.DoubleVar()
@@ -53,7 +54,7 @@ class BillTab:
 
         self.batch_no_label = ttk.Label(self.add_bill_frame, text="Batch No.: ")
         self.batch_no_label.grid(row=3, column=0, padx=self.PADX, pady=self.PADY, sticky="e")
-        self.batch_no_entry = ttk.Combobox(self.add_bill_frame, state="readonly")
+        self.batch_no_entry = ttk.Combobox(self.add_bill_frame, state="readonly", textvariable=self.batch_no)
         self.batch_no_entry.grid(row=3, column=1, padx=self.PADX, pady=self.PADY, sticky="ew")
 
         self.quantity_label = ttk.Label(self.add_bill_frame, text="Quantity: ")
@@ -146,7 +147,7 @@ class BillTab:
 
     def add_item_to_bill(self):
         name = self.name.get()
-        batch_no = self.batch_no_entry.get()
+        batch_no = self.batch_no.get()
         quantity = self.quantity.get()
         if not (name and batch_no and quantity):
             return None
@@ -204,7 +205,7 @@ class BillTab:
     def refresh_entry(self):
         self.name.set("")
         self.batch_no_entry["values"] = []
-        self.batch_no_entry.set("")
+        self.batch_no.set("")
         self.quantity.set(0)
         self.price.set(0)
         self.total.set(0)
@@ -216,6 +217,7 @@ class BillTab:
         self.name_entry.bind("<Tab>", self.select_first_name)
         self.possible_names_list.bind("<<ListboxSelect>>", self.select_name)
         self.name.trace_add("write", self.list_possible_names)
+        self.batch_no.trace_add("write", self.update_price)
         self.quantity.trace_add("write", self.calculate_total)
         self.price.trace_add("write", self.calculate_total)
         self.discount.trace_add("write", self.calculate_net_total)
@@ -268,6 +270,15 @@ class BillTab:
             return None
         self.batch_no_entry["values"] = batches
         self.batch_no_entry.current(0)
+
+    def update_price(self, *args):
+        if not self.name.get():
+            return None
+        item_code = re.sub('[^A-Za-z0-9]+', '', self.name.get()).lower()
+        batch = get_batch(item_code, self.batch_no.get())
+        if not batch:
+            return None
+        self.price.set(batch.price)
 
     def calculate_total(self, *args):
         quantity = self.quantity.get() or 0

@@ -74,6 +74,14 @@ def get_paginated_batches(page: int, code: str | None = None) -> tuple[list[tupl
     return response, count
 
 
+def get_sum_total_of_all() -> float:
+    batches = session.query(Batch)
+    total = 0.0
+    for batch in batches:
+        total += batch.price * batch.quantity
+    return round(total, 3)
+
+
 def get_bill(id: int) -> Bill | None:
     bill = session.query(Bill).filter(Bill.id == id).scalar()
     return bill
@@ -141,6 +149,11 @@ def add_item(name: str, type: str, price: float, best_before: int) -> Item:
 
 
 def add_batch(item_id: str, batch_no: str, price: float, quantity: int, mfg_date: date, exp_date: date, distributor: str) -> Batch:
+    item: Item | None = session.query(Item).filter(Item.id == item_id).scalar()
+    if not item:
+        return None
+    item.price = price
+
     batch: Batch | None = session.query(Batch).filter(Batch.batch_no == batch_no, Batch.item_id == item_id).scalar()
     if not batch:
         batch = Batch(item_id, batch_no, quantity, price, mfg_date, exp_date, distributor)
@@ -210,3 +223,13 @@ def edit_batch(code: str, batch_no: str, price: float, quantity: int, mfg_date: 
     batch.distributor = distributor
     session.commit()
     return batch
+
+
+def delete_expired_batches(date: date) -> list[tuple[str, str]]:
+    batches = session.query(Batch).filter(Batch.exp_date <= date).order_by(Batch.item_id)
+    deleted_batches = list()
+    for batch in batches:
+        deleted_batches.append((batch.item, batch.batch_no))
+        session.delete(batch)
+    session.commit()
+    return deleted_batches
