@@ -353,6 +353,7 @@ class EditTab:
         self.mfg_year.set(batch.mfg_date.year)
         self.exp_month.set(batch.exp_date.month)
         self.exp_year.set(batch.exp_date.year)
+        self.distributor_entry.delete(0, "end")
         self.distributor_entry.insert(0, batch.distributor or "")
 
     def update_date(self, *args):

@@ -9,12 +9,19 @@ from models import Item, Batch, Bill, ServiceBill
 type_dict = {
         "tablet": "tab",
         "capsule": "cap",
+
         "syrup": "syp",
+        "drops": "drp",
+
         "ointment": "ont",
         "cream": "crm",
-        "drops": "drp",
+        "gel": "gel",
+
+        "powder": "pwd",
+        "injection": "inj",
         "other": "oth"
     }
+
 no_of_rows = 22
 
 

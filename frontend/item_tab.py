@@ -184,7 +184,7 @@ class ItemTab:
         self.mfg_year.set(today.year)
         self.exp_month.set(today.month)
         self.exp_year.set(today.year)
-        self.distributor_entry.delete(0, "end")
+        # self.distributor_entry.delete(0, "end")
         self.current_page.set(1)
         self.refresh_table(page=1)
 

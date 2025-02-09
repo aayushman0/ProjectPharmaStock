@@ -7,10 +7,16 @@ BaseModel = declarative_base()
 type_dict = {
         "tablet": "tab",
         "capsule": "cap",
+
         "syrup": "syp",
+        "drops": "drp",
+
         "ointment": "ont",
         "cream": "crm",
-        "drops": "drp",
+        "gel": "gel",
+
+        "powder": "pwd",
+        "injection": "inj",
         "other": "oth"
     }
 
